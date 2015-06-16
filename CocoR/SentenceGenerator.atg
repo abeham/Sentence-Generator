@@ -1,0 +1,25 @@
+$namespace=SentenceGenerator
+
+COMPILER Generator
+
+CHARACTERS
+  descriptor = 'A'..'Z' + 'a'..'z' + '-' + '0'..'9'.
+
+TOKENS
+  ident = descriptor { descriptor }.
+
+PRODUCTIONS
+  Sentence   = { Term | Option | Alternative | Group | Sequence }.
+  Term         = ident                         (. for (var i = 0; i < Sentences.Count; i++) Sentences[i].Add(t.val); .).
+  Option       = "["                           (. RecurseDown(); .)
+                 Sentence                      (. RecurseUp(true); .)
+                 "]".
+  Alternative  = "|"                           (. Base.AddRange(Sentences); Sentences = new List<List<string>>() { new List<string>() }; .)
+                 ( Term | Option | Group )     (. Sentences.InsertRange(0, Base); Base = new List<List<string>>(); .)
+                 .
+  Group        = "("                           (. RecurseDown(); .)
+                 Sentence                      (. RecurseUp(false); .)
+                 ")".
+  Sequence     = ";" Sentence.
+
+END Generator.
